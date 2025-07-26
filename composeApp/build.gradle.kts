@@ -20,7 +20,7 @@ kotlin {
 			implementation(compose.ui)
 			implementation(compose.components.resources)
 			implementation(compose.components.uiToolingPreview)
-			implementation(libs.androidx.lifecycle.viewmodel)
+//			implementation(libs.androidx.lifecycle.viewmodel)
 		}
 		commonTest.dependencies {
 			implementation(libs.kotlin.test)
@@ -41,6 +41,8 @@ compose.desktop {
 		nativeDistributions {
 			targetFormats(
 				TargetFormat.Dmg,
+				TargetFormat.Pkg,
+				TargetFormat.Exe,
 				TargetFormat.Msi,
 				TargetFormat.Deb,
 				TargetFormat.AppImage,
@@ -49,7 +51,7 @@ compose.desktop {
 			packageName = "Pomolin"
 			packageVersion = "1.0.0"
 			linux {
-				iconFile.set(project.file("composeResources/drawable/icons/Gicon.png"))
+				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
 			}
 		}
 		jvmArgs += listOf(
