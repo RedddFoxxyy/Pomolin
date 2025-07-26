@@ -8,7 +8,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class Timer(private val durationMinutes: Int) {
+class Timer(durationMinutes: Int) {
 	private var coroutineScope = CoroutineScope(Dispatchers.Main)
 	private val initialTimeMillis = durationMinutes * 60 * 1000L
 	private val timeMillis = MutableStateFlow(initialTimeMillis)
@@ -16,7 +16,8 @@ class Timer(private val durationMinutes: Int) {
 		private set
 
 	private val lastUpdateTime = MutableStateFlow(0L)
-	private val isTimerRunning = MutableStateFlow(false)
+	internal var isTimerRunning = MutableStateFlow(false)
+		private set
 
 	fun startTimer() {
 		if (isTimerRunning.value || timeMillis.value <= 0L) return

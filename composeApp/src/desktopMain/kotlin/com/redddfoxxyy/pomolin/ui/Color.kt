@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 // TODO: Standardise themes and colors.
 val Base = Color.hsl(240f, 0.21f, 0.15f)
+val Crust = Color.hsl(240f, 0.23f, 0.09f)
 val Text = Color.hsl(226f, 0.64f, 0.88f)
 val TextMedium = Color.hsl(227f, 0.44f, 0.80f)
 val TextDark = Color.hsl(228f, 0.29f, 0.73f)
