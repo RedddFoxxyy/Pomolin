@@ -2,6 +2,8 @@ package com.redddfoxxyy.pomolin.ui
 
 import androidx.compose.ui.graphics.Color
 
+
+// TODO: Standardise themes and colors.
 val Base = Color.hsl(240f, 0.21f, 0.15f)
 val Text = Color.hsl(226f, 0.64f, 0.88f)
 val TextMedium = Color.hsl(227f, 0.44f, 0.80f)

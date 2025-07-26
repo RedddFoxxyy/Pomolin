@@ -25,10 +25,13 @@ import com.redddfoxxyy.pomolin.handlers.Timer
 import com.redddfoxxyy.pomolin.ui.Base
 import com.redddfoxxyy.pomolin.ui.*
 
+
 @Composable
+
 @Preview
-fun TimerScreen() {
-	val timerState = remember { Timer() }
+
+fun compositeScreen() {
+	val timerState = remember { Timer(25) }
 
 	Column(
 		Modifier.fillMaxHeight().background(Base),
@@ -37,8 +40,8 @@ fun TimerScreen() {
 	) {
 		Text(
 			text = timerState.formatedTime.value,
-			fontWeight = FontWeight.Bold,
-			fontSize = 30.sp,
+			fontWeight = FontWeight.ExtraBold,
+			fontSize = 50.sp,
 			color = Text
 		)
 		Spacer(Modifier.height(30.dp))
@@ -47,6 +50,7 @@ fun TimerScreen() {
 			verticalAlignment = Alignment.CenterVertically,
 			modifier = Modifier.fillMaxWidth()
 		) {
+
 			Button(
 				onClick = { timerState.startTimer() }, colors = ButtonDefaults.buttonColors(
 					containerColor = Green,

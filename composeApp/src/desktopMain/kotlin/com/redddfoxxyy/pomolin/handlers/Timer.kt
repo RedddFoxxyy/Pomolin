@@ -8,24 +8,38 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class Timer {
+class Timer(private val durationMinutes: Int) {
 	private var coroutineScope = CoroutineScope(Dispatchers.Main)
-	var formatedTime = mutableStateOf("00:00")
+	private val initialTimeMillis = durationMinutes * 60 * 1000L
+	private val timeMillis = MutableStateFlow(initialTimeMillis)
+	var formatedTime = mutableStateOf(formatTime(initialTimeMillis))
+		private set
+
 	private val lastUpdateTime = MutableStateFlow(0L)
-	private val timeMillis = MutableStateFlow(0L)
 	private val isTimerRunning = MutableStateFlow(false)
 
 	fun startTimer() {
-		if (isTimerRunning.value) return
+		if (isTimerRunning.value || timeMillis.value <= 0L) return
+
 		coroutineScope.launch {
 			lastUpdateTime.value = System.currentTimeMillis()
 			isTimerRunning.value = true
 
-			while (isTimerRunning.value) {
+			while (isTimerRunning.value && timeMillis.value > 0) {
 				delay(10L)
-				timeMillis.value += System.currentTimeMillis() - lastUpdateTime.value
+				val elapsed = System.currentTimeMillis() - lastUpdateTime.value
+				timeMillis.value -= elapsed
 				lastUpdateTime.value = System.currentTimeMillis()
+
+				if (timeMillis.value < 0L) {
+					timeMillis.value = 0L
+				}
+
 				formatedTime.value = formatTime(timeMillis.value)
+			}
+
+			if (timeMillis.value <= 0L) {
+				isTimerRunning.value = false
 			}
 		}
 	}
@@ -36,16 +50,16 @@ class Timer {
 
 	fun reset() {
 		isTimerRunning.value = false
-		timeMillis.value = 0L
+		timeMillis.value = initialTimeMillis
 		lastUpdateTime.value = 0L
-		formatedTime.value = "00:00"
+		formatedTime.value = formatTime(initialTimeMillis)
 		coroutineScope.cancel()
 		coroutineScope = CoroutineScope(Dispatchers.Main)
 	}
 
-	private fun formatTime(timeMillis: Long): String {
-		val totalSeconds = timeMillis / 1000
-		val minutes = (totalSeconds / 60) % 60
+	private fun formatTime(millis: Long): String {
+		val totalSeconds = millis / 1000
+		val minutes = (totalSeconds / 60)
 		val seconds = totalSeconds % 60
 		return String.format("%02d:%02d", minutes, seconds)
 	}
