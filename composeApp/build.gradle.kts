@@ -29,6 +29,7 @@ kotlin {
 			implementation(compose.desktop.currentOs)
 			implementation(libs.kotlinx.coroutinesSwing)
 			implementation(compose.components.resources)
+			implementation(compose.animation)
 		}
 	}
 }

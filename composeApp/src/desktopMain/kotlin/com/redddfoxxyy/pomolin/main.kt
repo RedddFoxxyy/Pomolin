@@ -17,8 +17,7 @@ fun main() = application {
 		icon = icon,
 	) {
 		SwingUtilities.getWindowAncestor(this.window.rootPane)?.apply {
-			minimumSize = Dimension(350, 550)  // Min width x height
-//			maximumSize = Dimension(1920, 1080) // Optional: Max size
+			minimumSize = Dimension(400, 550)
 		}
 		App()
 	}
