@@ -76,11 +76,11 @@ jobs:
       - name: Build with Gradle on Windows
         if: runner.os == 'Windows'
         shell: bash
-        run: ./gradlew.bat -Pcompose.desktop.target.arch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
+        run: ./gradlew.bat -Pcompose.desktop.target.arch=${{ matrix.arch }} -Pproject.archivesBaseName=pomolin-windows-${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
       - name: Build with Gradle on Linux/macOS
         if: runner.os != 'Windows'
-        run: ./gradlew -Pcompose.desktop.target.arch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
+        run: ./gradlew -Pcompose.desktop.target.arch=${{ matrix.arch }} -Pproject.archivesBaseName=pomolin-${{ matrix.os }}-${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
       # 5. Upload the built packages as an artifact for the release job
       - name: Upload Artifacts
