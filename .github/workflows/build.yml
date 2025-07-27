@@ -1,7 +1,7 @@
 # .github/workflows/build.yml
-# This workflow builds and packages the Compose for Desktop application for Windows, macOS, and Linux.
+# This workflow builds, packages, and creates a draft release for the application on Windows, macOS, and Linux.
 
-name: Build Application
+name: Build and Release
 
 on:
   # Triggers the workflow on push events but only for the "main" branch
@@ -27,57 +27,43 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up the Java Development Kit (JDK)
-      # Compose for Desktop requires JDK 11 or newer. We'll use JDK 17.
-      - name: Set up JDK 21
+      # Using the Zulu JDK from Azul.
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
       # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
       - name: Grant execute permission for gradlew
         if: runner.os != 'Windows'
         run: chmod +x ./gradlew
 
-      # 4. Build the application and create native packages
-      # The command changes based on the operating system.
-      - name: Build with Gradle
-        run: |
-          case ${{ runner.os }} in
-            Linux)
-              ./gradlew packageReleaseDeb
-              ;;
-            macOS)
-              ./gradlew packageReleaseDmg packageReleasePkg
-              ;;
-            Windows)
-              ./gradlew.bat packageReleaseMsi packageReleaseExe
-              ;;
-          esac
-
-      # 5. Upload the generated packages as build artifacts
-      # The path to the artifacts depends on the OS and package format.
-      - name: Upload Linux Artifact (DEB)
+      # 4. Build the application based on the OS
+      - name: Build on Linux
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Package-Linux-DEB
-          path: composeApp/build/compose/binaries/release/deb/*.deb
+        run: ./gradlew packageReleaseDeb packageReleaseUberJarForCurrentOS
 
-      - name: Upload macOS Artifacts (DMG & PKG)
+      - name: Build on macOS
         if: runner.os == 'macOS'
-        uses: actions/upload-artifact@v4
+        run: ./gradlew packageReleaseDmg packageReleasePkg packageReleaseUberJarForCurrentOS
+
+      - name: Build on Windows
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat packageReleaseMsi packageReleaseExe packageReleaseUberJarForCurrentOS
+
+      # 5. Create a Draft Release and Upload Artifacts
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Package-macOS
-          path: |
+          # This creates a draft release, so it's not published automatically.
+          draft: true
+          # The tag name is based on the commit hash to ensure it's unique.
+          tag_name: build-${{ github.sha }}
+          files: |
+            composeApp/build/compose/binaries/release/deb/*.deb
             composeApp/build/compose/binaries/release/dmg/*.dmg
             composeApp/build/compose/binaries/release/pkg/*.pkg
-
-      - name: Upload Windows Artifacts (MSI & EXE)
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v4
-        with:
-          name: Package-Windows-amd64
-          path: |
             composeApp/build/compose/binaries/release/msi/*.msi
             composeApp/build/compose/binaries/release/exe/*.exe
+            composeApp/build/compose/jars/*.jar
