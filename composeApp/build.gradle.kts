@@ -61,6 +61,12 @@ compose.desktop {
 				licenseFile.set(project.file("../LICENSE"))
 				vendor = "RedddFoxxyy"
 			}
+			macOS {
+				packageName = "pomolin-macos-${project.findProperty("osArch") ?: "x64"}"
+			}
+			windows {
+				packageName = "pomolin-windows-${project.findProperty("osArch") ?: "x64"}"
+			}
 		}
 		jvmArgs += listOf(
 //			"-XX:+UseZGC",
