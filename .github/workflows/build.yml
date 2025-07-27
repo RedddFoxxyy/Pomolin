@@ -13,59 +13,59 @@ on:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
-      runs-on: ${{ matrix.os }}
-      strategy:
-        # Do not cancel other jobs if one fails
-        fail-fast: false
-        matrix:
-          # Define the operating systems to build on
-          os: [ ubuntu-latest, macos-latest, windows-latest ]
+    strategy:
+      # Do not cancel other jobs if one fails
+      fail-fast: false
+      matrix:
+        # Define the operating systems to build on
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
 
-      steps:
-        # 1. Check out the repository code
-        - name: Checkout code
-          uses: actions/checkout@v4
+    steps:
+      # 1. Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-        # 2. Set up the Java Development Kit (JDK)
-        # Using the Zulu JDK from Azul.
-        - name: Set up JDK 21
-          uses: actions/setup-java@v4
-          with:
-            distribution: 'zulu'
-            java-version: '21'
+      # 2. Set up the Java Development Kit (JDK)
+      # Using the Zulu JDK from Azul.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
 
-        # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
-        - name: Grant execute permission for gradlew
-          if: runner.os != 'Windows'
-          run: chmod +x ./gradlew
+      # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
+      - name: Grant execute permission for gradlew
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
 
-        # 4. Build the application based on the OS
-        - name: Build on Linux
-          if: runner.os == 'Linux'
-          run: ./gradlew packageReleaseDeb packageReleaseUberJarForCurrentOS
+      # 4. Build the application based on the OS
+      - name: Build on Linux
+        if: runner.os == 'Linux'
+        run: ./gradlew packageReleaseDeb packageReleaseUberJarForCurrentOS
 
-        - name: Build on macOS
-          if: runner.os == 'macOS'
-          run: ./gradlew packageReleaseDmg packageReleasePkg packageReleaseUberJarForCurrentOS
+      - name: Build on macOS
+        if: runner.os == 'macOS'
+        run: ./gradlew packageReleaseDmg packageReleasePkg packageReleaseUberJarForCurrentOS
 
-        - name: Build on Windows
-          if: runner.os == 'Windows'
-          run: ./gradlew.bat packageReleaseMsi packageReleaseExe packageReleaseUberJarForCurrentOS
+      - name: Build on Windows
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat packageReleaseMsi packageReleaseExe packageReleaseUberJarForCurrentOS
 
-        # 5. Create a Draft Release and Upload Artifacts
-        - name: Create Draft Release
-          uses: softprops/action-gh-release@v2
-          with:
-            # This creates a draft release, so it's not published automatically.
-            draft: true
-            # The tag name is based on the commit hash to ensure it's unique.
-            tag_name: build-${{ github.sha }}
-            files: |
-              composeApp/build/compose/binaries/release/deb/*.deb
-              composeApp/build/compose/binaries/release/dmg/*.dmg
-              composeApp/build/compose/binaries/release/pkg/*.pkg
-              composeApp/build/compose/binaries/release/msi/*.msi
-              composeApp/build/compose/binaries/release/exe/*.exe
-              composeApp/build/compose/jars/*.jar
+      # 5. Create a Draft Release and Upload Artifacts
+      - name: Create Draft Release
+        uses: softprops/action-gh-release@v2
+        with:
+          # This creates a draft release, so it's not published automatically.
+          draft: true
+          # The tag name is based on the commit hash to ensure it's unique.
+          tag_name: build-${{ github.sha }}
+          files: |
+            composeApp/build/compose/binaries/release/deb/*.deb
+            composeApp/build/compose/binaries/release/dmg/*.dmg
+            composeApp/build/compose/binaries/release/pkg/*.pkg
+            composeApp/build/compose/binaries/release/msi/*.msi
+            composeApp/build/compose/binaries/release/exe/*.exe
+            composeApp/build/compose/jars/*.jar
