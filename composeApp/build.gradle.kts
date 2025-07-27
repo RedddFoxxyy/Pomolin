@@ -62,10 +62,10 @@ compose.desktop {
 				vendor = "RedddFoxxyy"
 			}
 			macOS {
-				packageName = "pomolin-macos-${project.findProperty("osArch") ?: "x64"}"
+				packageName = "pomolin"
 			}
 			windows {
-				packageName = "pomolin-windows-${project.findProperty("osArch") ?: "x64"}"
+				packageName = "pomolin"
 			}
 		}
 		jvmArgs += listOf(
