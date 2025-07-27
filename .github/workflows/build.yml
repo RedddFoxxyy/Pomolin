@@ -88,7 +88,35 @@ jobs:
         if: runner.os != 'Windows'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      # 5. Upload the built packages as an artifact for the release job
+      # 5. Rename the packages to include the architecture, preventing release conflicts
+      - name: Rename Packages for Release
+        shell: bash
+        run: |
+          ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
+          ARCH="${{ matrix.arch }}"
+
+          rename_files() {
+            DIR_PATH="$1"
+            EXT="$2"
+            if [ -d "$DIR_PATH" ]; then
+              for f in "$DIR_PATH"/*."$EXT"; do
+                if [ -f "$f" ]; then
+                  # Constructs the new name, e.g., app-1.0.0.msi -> app-1.0.0-x64.msi
+                  NEW_NAME="$(basename "$f" ."$EXT")-$ARCH.$EXT"
+                  echo "Renaming $f to $DIR_PATH/$NEW_NAME"
+                  mv "$f" "$DIR_PATH/$NEW_NAME"
+                fi
+              done
+            fi
+          }
+
+          # Rename only the package types that have conflicting names
+          rename_files "$ARTIFACT_DIR/dmg" "dmg"
+          rename_files "$ARTIFACT_DIR/pkg" "pkg"
+          rename_files "$ARTIFACT_DIR/msi" "msi"
+          rename_files "$ARTIFACT_DIR/exe" "exe"
+
+      # 6. Upload the built packages as an artifact for the release job
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
