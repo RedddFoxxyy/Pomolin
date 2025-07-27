@@ -24,18 +24,16 @@ jobs:
             arch: "x64"
             runner: "ubuntu-latest"
             gradle_task: "packageReleaseDeb"
-          - os: ubuntu-latest
+          - os: ubuntu-24.04-arm
             arch: "arm64"
-            # NOTE: ubuntu-latest-arm64 is a GitHub-hosted larger runner.
-            # Check your plan for availability and potential costs.
-            runner: "ubuntu-latest-arm64"
+            runner: "ubuntu-24.04-arm"
             gradle_task: "packageReleaseDeb"
 
           # macOS Builds
-          - os: macos-latest
+          - os: macos-13
             arch: "x64"
             # Explicitly use an Intel-based runner for the x64 build
-            runner: "macos-12"
+            runner: "macos-13"
             gradle_task: "packageReleaseDmg packageReleasePkg"
           - os: macos-latest
             arch: "arm64"
