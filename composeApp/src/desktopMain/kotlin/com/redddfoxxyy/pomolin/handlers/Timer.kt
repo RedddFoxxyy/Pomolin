@@ -7,61 +7,47 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import pomolin.composeapp.generated.resources.Res
-import javax.sound.sampled.AudioSystem
 
-class Timer(durationMinutes: Int) {
+class Timer(durationMinutes: Float) {
+	// Routine Handlers
 	private var coroutineScope = CoroutineScope(Dispatchers.Main)
-	private val initialTimeMillis = durationMinutes * 60 * 1000L
-	private val timeMillis = MutableStateFlow(initialTimeMillis)
+
+	// Timer Handlers
+	private val initialTimeMillis = (durationMinutes * 60 * 1000L).toLong()
+	private var timeMillis = initialTimeMillis
 	internal val formatedTime = mutableStateOf(formatTime(initialTimeMillis))
-	private val lastUpdateTime = MutableStateFlow(0L)
+	private var lastUpdateTime = 0L
 	internal val isTimerRunning = MutableStateFlow(false)
-
-	// TODO: Fix audio, it sometimes does not play
-	private suspend fun playSound() {
-		withContext(Dispatchers.IO) {
-			try {
-				val clip = AudioSystem.getClip()
-				val resource = Res.readBytes("files/timerComplete.wav")
-				val byteArrayInputStream = resource.inputStream()
-				val audioInputStream = AudioSystem.getAudioInputStream(byteArrayInputStream)
-
-				clip.open(audioInputStream)
-				clip.start()
-
-				Thread.sleep(clip.microsecondLength / 1000)
-
-			} catch (e: Exception) {
-				println("Error playing sound: ${e.message}")
-			}
-		}
-	}
+	private var audioPlayed = false
 
 	fun startTimer() {
-		if (isTimerRunning.value || timeMillis.value <= 0L) return
+		if (isTimerRunning.value || timeMillis <= 0L) return
 
 		coroutineScope.launch {
-			lastUpdateTime.value = System.currentTimeMillis()
+			lastUpdateTime = System.currentTimeMillis()
 			isTimerRunning.value = true
 
-			while (isTimerRunning.value && timeMillis.value > 0) {
+			while (isTimerRunning.value && timeMillis > 0) {
 				delay(10L)
-				val elapsed = System.currentTimeMillis() - lastUpdateTime.value
-				timeMillis.value -= elapsed
-				lastUpdateTime.value = System.currentTimeMillis()
+				val elapsed = System.currentTimeMillis() - lastUpdateTime
+				timeMillis -= elapsed
+				lastUpdateTime = System.currentTimeMillis()
 
-				if (timeMillis.value < 0L) {
-					timeMillis.value = 0L
+				if (timeMillis < 0L) {
+					timeMillis = 0L
 				}
 
-				formatedTime.value = formatTime(timeMillis.value)
+				if (timeMillis <= 2000L && !audioPlayed) {
+					Audio.playCompletionSound()
+					audioPlayed = true
+				}
+
+				formatedTime.value = formatTime(timeMillis)
 			}
 
-			if (timeMillis.value <= 0L) {
+			if (timeMillis <= 0L) {
 				isTimerRunning.value = false
-				playSound()
+				audioPlayed = false
 			}
 		}
 	}
@@ -72,9 +58,10 @@ class Timer(durationMinutes: Int) {
 
 	fun reset() {
 		isTimerRunning.value = false
-		timeMillis.value = initialTimeMillis
-		lastUpdateTime.value = 0L
+		timeMillis = initialTimeMillis
+		lastUpdateTime = 0L
 		formatedTime.value = formatTime(initialTimeMillis)
+		audioPlayed = false
 		coroutineScope.cancel()
 		coroutineScope = CoroutineScope(Dispatchers.Main)
 	}

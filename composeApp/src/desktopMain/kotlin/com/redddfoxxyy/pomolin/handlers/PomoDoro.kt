@@ -2,15 +2,20 @@ package com.redddfoxxyy.pomolin.handlers
 
 import androidx.compose.runtime.mutableStateOf
 
-enum class PomoDoroRoutines(val duration: Int) {
-	Working(25),
-	ShortBreak(1),
-	LongBreak(20)
+enum class PomoDoroRoutines(val duration: Float) {
+	Working(25f),
+	ShortBreak(5f),
+	LongBreak(20f)
 }
 
-class RoutineManager {
-	private val currentRoutine = mutableStateOf(PomoDoroRoutines.Working)
-	internal val currentTimer = mutableStateOf(Timer(25))
+internal class RoutineManager {
+	init {
+		// SO that this shit gets created here and now when its method is run for the firs time.
+		Audio
+	}
+
+	private var currentRoutine = PomoDoroRoutines.Working
+	internal val currentTimer = mutableStateOf(Timer(25f))
 
 	// TODO: Change to next routine after current routine completion.
 	private val routineComplete = mutableStateOf(false)
@@ -30,6 +35,6 @@ class RoutineManager {
 	internal fun setRoutine(routine: PomoDoroRoutines) {
 		currentTimer.value.reset()
 		currentTimer.value = Timer(routine.duration)
-		currentRoutine.value = routine
+		currentRoutine = routine
 	}
 }

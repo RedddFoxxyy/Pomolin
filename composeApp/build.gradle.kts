@@ -30,6 +30,8 @@ kotlin {
 			implementation(compose.components.resources)
 			implementation(compose.animation)
 			implementation("com.googlecode.soundlibs:mp3spi:1.9.5.4")
+			implementation("com.googlecode.soundlibs:basicplayer:3.0.0.0")
+			implementation("ch.qos.logback:logback-classic:1.5.18")
 		}
 	}
 }
@@ -48,10 +50,16 @@ compose.desktop {
 				TargetFormat.AppImage,
 				TargetFormat.Rpm
 			)
-			packageName = "Pomolin"
+			packageName = "pomolin"
 			packageVersion = "1.0.0"
 			linux {
 				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				packageName = "pomolin"
+				debMaintainer = "RedddFoxxyy"
+				appCategory = "Utility"
+				description = "A simple Pomodoro App written in Kotlin. Focus on what matters! "
+				licenseFile.set(project.file("../LICENSE"))
+				vendor = "RedddFoxxyy"
 			}
 		}
 		jvmArgs += listOf(
@@ -61,5 +69,8 @@ compose.desktop {
 //			"-Dskiko.renderer=VULKAN"
 //            "-XX:+AlwaysPreTouch"
 		)
+		buildTypes.release.proguard {
+			configurationFiles.from("proguard-rules.pro")
+		}
 	}
 }
