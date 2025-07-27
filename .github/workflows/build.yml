@@ -122,4 +122,10 @@ jobs:
           # The tag name is based on the commit hash to ensure it's unique.
           tag_name: build-${{ github.sha }}
           # Use a glob pattern to find and upload all files from the artifacts directory.
-          files: artifacts/**/*
+          files: |
+            artifacts/**/*.jar
+            artifacts/**/*.msi
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.pkg
+            artifacts/**/*.deb
