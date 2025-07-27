@@ -41,10 +41,14 @@ jobs:
             runner: "macos-14"
             gradle_task: "packageReleaseDmg packageReleasePkg"
 
-          # Windows Build
+          # Windows Builds
           - os: windows-latest
             arch: "x64"
             runner: "windows-latest"
+            gradle_task: "packageReleaseMsi packageReleaseExe"
+          - os: windows-11-arm
+            arch: "arm64"
+            runner: "windows-11-arm"
             gradle_task: "packageReleaseMsi packageReleaseExe"
 
     # Run on the runner specified in the matrix
