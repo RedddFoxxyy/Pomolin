@@ -20,7 +20,6 @@ kotlin {
 			implementation(compose.ui)
 			implementation(compose.components.resources)
 			implementation(compose.components.uiToolingPreview)
-//			implementation(libs.androidx.lifecycle.viewmodel)
 		}
 		commonTest.dependencies {
 			implementation(libs.kotlin.test)
@@ -30,6 +29,7 @@ kotlin {
 			implementation(libs.kotlinx.coroutinesSwing)
 			implementation(compose.components.resources)
 			implementation(compose.animation)
+			implementation("com.googlecode.soundlibs:mp3spi:1.9.5.4")
 		}
 	}
 }
@@ -55,11 +55,10 @@ compose.desktop {
 			}
 		}
 		jvmArgs += listOf(
-			"-XX:+UnlockExperimentalVMOptions",
-			"-XX:+UseZGC",
-			"-Xms100m",
+//			"-XX:+UseZGC",
+			"-Xms256m",
 			"-Xmx512m",
-			"-Dsun.java2d.vulkan=true"
+//			"-Dskiko.renderer=VULKAN"
 //            "-XX:+AlwaysPreTouch"
 		)
 	}

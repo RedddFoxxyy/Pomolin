@@ -1,5 +1,14 @@
 package com.redddfoxxyy.pomolin.ui.screens
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -21,10 +30,13 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -32,20 +44,18 @@ import androidx.compose.ui.unit.sp
 import com.redddfoxxyy.pomolin.handlers.PomoDoroRoutines
 import com.redddfoxxyy.pomolin.handlers.RoutineManager
 import com.redddfoxxyy.pomolin.ui.Base
-import com.redddfoxxyy.pomolin.ui.*
+import com.redddfoxxyy.pomolin.ui.Crust
+import com.redddfoxxyy.pomolin.ui.Green
+import com.redddfoxxyy.pomolin.ui.Lavender
+import com.redddfoxxyy.pomolin.ui.Mauve
+import com.redddfoxxyy.pomolin.ui.Peach
+import com.redddfoxxyy.pomolin.ui.Red
+import com.redddfoxxyy.pomolin.ui.White
 import org.jetbrains.compose.resources.painterResource
 import pomolin.composeapp.generated.resources.Res
-import pomolin.composeapp.generated.resources.play_arrow
 import pomolin.composeapp.generated.resources.pause
+import pomolin.composeapp.generated.resources.play_arrow
 import pomolin.composeapp.generated.resources.reset
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.runtime.getValue
 
 
 @Composable
@@ -59,6 +69,13 @@ fun compositeScreen() {
 	val resetIconPainter = painterResource(Res.drawable.reset)
 	val selectedIndex = remember { mutableIntStateOf(0) }
 	val options = listOf("Pomodoro", "Short Break", "Long Break")
+
+	val resetIconRotation = remember { mutableFloatStateOf(0f) }
+	val animatedResetIconRotation by animateFloatAsState(
+		targetValue = resetIconRotation.value,
+		animationSpec = tween(durationMillis = 400),
+		label = "ResetIconRotation"
+	)
 
 	fun onSegmentSelected(index: Int) {
 		when (index) {
@@ -185,7 +202,6 @@ fun compositeScreen() {
 				),
 				modifier = Modifier.padding(5.dp)
 			) {
-				// 3. Animate the icon change
 				AnimatedContent(
 					targetState = isRunning,
 					transitionSpec = {
@@ -202,13 +218,22 @@ fun compositeScreen() {
 			}
 			Spacer(Modifier.width(16.dp))
 			Button(
-				onClick = { manager.resetTimer() }, colors = ButtonDefaults.buttonColors(
+				onClick = {
+					manager.resetTimer()
+					resetIconRotation.value -= 360f
+				},
+				colors = ButtonDefaults.buttonColors(
 					containerColor = Red,
 					contentColor = White
 				),
 				modifier = Modifier.padding(5.dp)
 			) {
-				Icon(painter = resetIconPainter, contentDescription = "Reset", tint = Crust)
+				Icon(
+					painter = resetIconPainter,
+					contentDescription = "Reset",
+					tint = Crust,
+					modifier = Modifier.rotate(animatedResetIconRotation)
+				)
 			}
 		}
 

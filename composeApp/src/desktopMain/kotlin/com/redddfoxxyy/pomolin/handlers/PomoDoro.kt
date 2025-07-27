@@ -4,14 +4,13 @@ import androidx.compose.runtime.mutableStateOf
 
 enum class PomoDoroRoutines(val duration: Int) {
 	Working(25),
-	ShortBreak(5),
+	ShortBreak(1),
 	LongBreak(20)
 }
 
 class RoutineManager {
 	private val currentRoutine = mutableStateOf(PomoDoroRoutines.Working)
-	internal var currentTimer = mutableStateOf(Timer(25))
-		private set
+	internal val currentTimer = mutableStateOf(Timer(25))
 
 	// TODO: Change to next routine after current routine completion.
 	private val routineComplete = mutableStateOf(false)

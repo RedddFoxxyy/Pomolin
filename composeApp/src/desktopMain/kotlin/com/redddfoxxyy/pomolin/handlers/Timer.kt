@@ -7,17 +7,37 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import pomolin.composeapp.generated.resources.Res
+import javax.sound.sampled.AudioSystem
 
 class Timer(durationMinutes: Int) {
 	private var coroutineScope = CoroutineScope(Dispatchers.Main)
 	private val initialTimeMillis = durationMinutes * 60 * 1000L
 	private val timeMillis = MutableStateFlow(initialTimeMillis)
-	var formatedTime = mutableStateOf(formatTime(initialTimeMillis))
-		private set
-
+	internal val formatedTime = mutableStateOf(formatTime(initialTimeMillis))
 	private val lastUpdateTime = MutableStateFlow(0L)
-	internal var isTimerRunning = MutableStateFlow(false)
-		private set
+	internal val isTimerRunning = MutableStateFlow(false)
+
+	// TODO: Fix audio, it sometimes does not play
+	private suspend fun playSound() {
+		withContext(Dispatchers.IO) {
+			try {
+				val clip = AudioSystem.getClip()
+				val resource = Res.readBytes("files/timerComplete.wav")
+				val byteArrayInputStream = resource.inputStream()
+				val audioInputStream = AudioSystem.getAudioInputStream(byteArrayInputStream)
+
+				clip.open(audioInputStream)
+				clip.start()
+
+				Thread.sleep(clip.microsecondLength / 1000)
+
+			} catch (e: Exception) {
+				println("Error playing sound: ${e.message}")
+			}
+		}
+	}
 
 	fun startTimer() {
 		if (isTimerRunning.value || timeMillis.value <= 0L) return
@@ -41,6 +61,7 @@ class Timer(durationMinutes: Int) {
 
 			if (timeMillis.value <= 0L) {
 				isTimerRunning.value = false
+				playSound()
 			}
 		}
 	}
