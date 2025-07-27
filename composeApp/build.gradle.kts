@@ -8,6 +8,7 @@ plugins {
 }
 
 kotlin {
+	jvmToolchain(24)
 	jvm("desktop")
 
 	sourceSets {
@@ -32,10 +33,10 @@ kotlin {
 			implementation("com.googlecode.soundlibs:mp3spi:1.9.5.4")
 			implementation("com.googlecode.soundlibs:basicplayer:3.0.0.0")
 			implementation("ch.qos.logback:logback-classic:1.5.18")
+			implementation("org.slf4j:slf4j-api:2.0.13")
 		}
 	}
 }
-
 
 compose.desktop {
 	application {
@@ -47,33 +48,39 @@ compose.desktop {
 				TargetFormat.Exe,
 				TargetFormat.Msi,
 				TargetFormat.Deb,
-//				TargetFormat.AppImage,
 				TargetFormat.Rpm
 			)
 			packageName = "pomolin"
-			packageVersion = "1.0.0"
+			packageVersion = "1.0.1"
+			description = "A simple Pomodoro App written in Kotlin. Focus on what matters! "
+			vendor = "RedddFoxxyy"
+			licenseFile.set(project.file("../LICENSE"))
+
 			linux {
 				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
 				packageName = "pomolin"
 				debMaintainer = "RedddFoxxyy"
 				appCategory = "Utility"
-				description = "A simple Pomodoro App written in Kotlin. Focus on what matters! "
-				licenseFile.set(project.file("../LICENSE"))
-				vendor = "RedddFoxxyy"
 			}
 			macOS {
 				packageName = "pomolin"
+				bundleID = "com.redddfoxxyy.pomolin"
+				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				copyright = "© 2025 RedddFoxxyy. All rights reserved."
 			}
 			windows {
 				packageName = "pomolin"
+				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				console = false
+				copyright = "© 2025 RedddFoxxyy. All rights reserved."
 			}
 		}
 		jvmArgs += listOf(
 //			"-XX:+UseZGC",
 			"-Xms256m",
 			"-Xmx512m",
-//			"-Dskiko.renderer=VULKAN"
-//            "-XX:+AlwaysPreTouch"
+			"--enable-native-access=ALL-UNNAMED",
+//          "-XX:+AlwaysPreTouch"
 		)
 		buildTypes.release.proguard {
 			configurationFiles.from("proguard-rules.pro")
