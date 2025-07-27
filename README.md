@@ -2,6 +2,8 @@
   <img src="composeApp/src/desktopMain/composeResources/drawable/Pomolin.png" alt="Pomolin app icon" width="200"/>
 </p>
 
+
+
 <p align="center">
   <img src="https://img.shields.io/badge/Kotlin-2.2.0-7F52FF.svg?style=for-the-badge&logo=kotlin" alt="Kotlin badge"/>
   <img src="https://img.shields.io/badge/Jetpack%20Compose-1.8.2-4285F4.svg?style=for-the-badge&logo=jetpackcompose" alt="Jetpack Compose badge"/>
@@ -10,6 +12,10 @@
 </p>
 
 # Pomolin
+
+<p align="center">
+  <img src="gitAssets/pomolin.avif" alt="Pomolin app icon" width="500"/>
+</p>
 
 A simple, beautiful, and minimalist Pomodoro timer for your desktop. Designed to help you stay
 focused and productive, it provides an elegant and straightforward way to manage your work and break
@@ -42,10 +48,15 @@ You can download the latest version of Pomolin from the *
 1. Download the `.msi` or `.exe` file.
 2. Run the installer and follow the on-screen instructions.
 
+> NOTE: For windows arm64 for jar file use java21! Also on windows you will file the app in C:
+> \ProgramFiles\Pomolin\
+
 ### macOS
 
 1. Download the `.dmg` or `.pkg` file.
 2. Open the file and drag the `Pomolin.app` to your `Applications` folder.
+
+> NOTE: The app has not been tested for MacOS yet. You can help me test for MACOS.
 
 ### Linux
 
@@ -62,7 +73,7 @@ You can download the latest version of Pomolin from the *
    ```bash
    java -jar pomolin-macos-arm64-1.0.0-release.jar 
    ```
-   > NOTE: Make sure you use java21 or latest only to run the jars.
+   > NOTE: Make sure you use java24 only to run the jars. ( Java21 on Windows arm)
 
 ***
 
