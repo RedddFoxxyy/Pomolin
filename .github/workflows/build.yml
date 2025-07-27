@@ -73,6 +73,7 @@ jobs:
       # 4. Build the application using Gradle, targeting the specific architecture
       - name: Build with Gradle on Windows
         if: runner.os == 'Windows'
+        shell: bash
         run: ./gradlew.bat -Pcompose.desktop.target.arch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
       - name: Build with Gradle on Linux/macOS
