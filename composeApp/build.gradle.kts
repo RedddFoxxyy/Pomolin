@@ -47,7 +47,7 @@ compose.desktop {
 				TargetFormat.Exe,
 				TargetFormat.Msi,
 				TargetFormat.Deb,
-				TargetFormat.AppImage,
+//				TargetFormat.AppImage,
 				TargetFormat.Rpm
 			)
 			packageName = "pomolin"
