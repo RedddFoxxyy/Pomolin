@@ -88,11 +88,11 @@ jobs:
         with:
           name: package-${{ runner.os }}-${{ matrix.arch }}
           path: |
-            composeApp/build/compose/binaries/release/deb/*.deb
-            composeApp/build/compose/binaries/release/dmg/*.dmg
-            composeApp/build/compose/binaries/release/pkg/*.pkg
-            composeApp/build/compose/binaries/release/msi/*.msi
-            composeApp/build/compose/binaries/release/exe/*.exe
+            composeApp/build/compose/binaries/main-release/deb/*.deb
+            composeApp/build/compose/binaries/main-release/dmg/*.dmg
+            composeApp/build/compose/binaries/main-release/pkg/*.pkg
+            composeApp/build/compose/binaries/main-release/msi/*.msi
+            composeApp/build/compose/binaries/main-release/exe/*.exe
             composeApp/build/compose/jars/*.jar
           retention-days: 1
 
@@ -122,10 +122,4 @@ jobs:
           # The tag name is based on the commit hash to ensure it's unique.
           tag_name: build-${{ github.sha }}
           # Use a glob pattern to find and upload all files from the artifacts directory.
-          files: |
-            artifacts/**/*.jar
-            artifacts/**/*.msi
-            artifacts/**/*.exe
-            artifacts/**/*.dmg
-            artifacts/**/*.pkg
-            artifacts/**/*.deb
+          files: artifacts/**/*
