@@ -1,0 +1,83 @@
+# .github/workflows/build.yml
+# This workflow builds and packages the Compose for Desktop application for Windows, macOS, and Linux.
+
+name: Build Application
+
+on:
+  # Triggers the workflow on push events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      # Do not cancel other jobs if one fails
+      fail-fast: false
+      matrix:
+        # Define the operating systems to build on
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      # 1. Check out the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up the Java Development Kit (JDK)
+      # Compose for Desktop requires JDK 11 or newer. We'll use JDK 17.
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '21'
+
+      # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
+      - name: Grant execute permission for gradlew
+        if: runner.os != 'Windows'
+        run: chmod +x ./gradlew
+
+      # 4. Build the application and create native packages
+      # The command changes based on the operating system.
+      - name: Build with Gradle
+        run: |
+          case ${{ runner.os }} in
+            Linux)
+              ./gradlew packageReleaseDeb
+              ;;
+            macOS)
+              ./gradlew packageReleaseDmg packageReleasePkg
+              ;;
+            Windows)
+              ./gradlew.bat packageReleaseMsi packageReleaseExe
+              ;;
+          esac
+
+      # 5. Upload the generated packages as build artifacts
+      # The path to the artifacts depends on the OS and package format.
+      - name: Upload Linux Artifact (DEB)
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Package-Linux-DEB
+          path: composeApp/build/compose/binaries/release/deb/*.deb
+
+      - name: Upload macOS Artifacts (DMG & PKG)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Package-macOS
+          path: |
+            composeApp/build/compose/binaries/release/dmg/*.dmg
+            composeApp/build/compose/binaries/release/pkg/*.pkg
+
+      - name: Upload Windows Artifacts (MSI & EXE)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Package-Windows-amd64
+          path: |
+            composeApp/build/compose/binaries/release/msi/*.msi
+            composeApp/build/compose/binaries/release/exe/*.exe
