@@ -172,15 +172,13 @@ jobs:
       - name: Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
-          name: Pomolin ${{ steps.get_version.outputs.version }} Alpha
+          name: Pomolin v${{ steps.get_version.outputs.version }} Alpha
           # This creates a draft release, so it's not published automatically.
           draft: true
           # The tag name is based on the commit hash to ensure it's unique.
           tag_name: v${{ steps.get_version.outputs.version }}
           # Set the release body content, using the extracted version
           body: |
-            ## Pomolin v${{ steps.get_version.outputs.version }}
-
             ### Description:
 
             Pomolin is a simple, beautiful, and minimalist Pomodoro timer for your desktop. Designed to help you stay focused and productive, it provides an elegant and straightforward way to manage your work and break intervals. With a clean interface and essential features, Pomolin helps you get into a rhythm of focused work sessions followed by refreshing breaks, all from a native desktop application.
@@ -190,6 +188,6 @@ jobs:
             ### 📦 Assets & Downloads:
 
             Download the appropriate package for your operating system and architecture below. All builds are created automatically via GitHub Actions. You can download an operating system specific package or an operating system specific jar.
-            > Note: If using a jar to run the application, make sure that you are using Java 24.
+            > Note: If using a jar to run the application, make sure that you are using Java 24. ( For windows 11 arm use Java21)
           # Use a glob pattern to find and upload all files from the artifacts directory
           files: artifacts/**/*
