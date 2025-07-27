@@ -7,7 +7,7 @@ name: Build and Release
 on:
   # Triggers the workflow on push events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ "release" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -66,11 +66,11 @@ jobs:
         uses: actions/checkout@v4
 
       # 2. Set up the Java Development Kit (JDK) for the target architecture
-      - name: Set up JDK 21 for ${{ matrix.arch }}
+      - name: Set up JDK 24 for ${{ matrix.arch }}
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '24'
           architecture: ${{ matrix.arch }}
 
       # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
@@ -139,7 +139,19 @@ jobs:
       contents: write
 
     steps:
-      # 1. Download all artifacts from the completed build jobs
+      # 1. Check out the repository code to access the build.gradle.kts file
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Get the project version from the Gradle build file
+      - name: Get Project Version
+        id: get_version
+        run: |
+          # Extracts the version from the line 'packageVersion = "1.0.0"'
+          VERSION=$(grep 'packageVersion = ' composeApp/build.gradle.kts | head -n 1 | sed -e 's/.*packageVersion = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # 3. Download all artifacts from the completed build jobs
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -147,14 +159,28 @@ jobs:
           # Each artifact will be in its own directory.
           path: artifacts
 
-      # 2. Create a single Draft Release and upload all packages
+      # 4. Create a single Draft Release and upload all packages
       - name: Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
-          name: package-${{ matrix.os_name }}-${{ matrix.arch }}
+          name: Pomolin ${{ steps.get_version.outputs.version }} Alpha
           # This creates a draft release, so it's not published automatically.
           draft: true
           # The tag name is based on the commit hash to ensure it's unique.
-          tag_name: build-${{ github.sha }}
-          # Use a glob pattern to find and upload all files from the artifacts directory.
+          tag_name: v${{ steps.get_version.outputs.version }}
+          # Set the release body content, using the extracted version
+          body: |
+            ## Pomolin v${{ steps.get_version.outputs.version }}
+
+            ### Description:
+
+            Pomolin is a simple, beautiful, and minimalist Pomodoro timer for your desktop. Designed to help you stay focused and productive, it provides an elegant and straightforward way to manage your work and break intervals. With a clean interface and essential features, Pomolin helps you get into a rhythm of focused work sessions followed by refreshing breaks, all from a native desktop application.
+
+            > Note: The app has been tested only for Linux.
+
+            ### 📦 Assets & Downloads:
+
+            Download the appropriate package for your operating system and architecture below. All builds are created automatically via GitHub Actions. You can download an operating system specific package or an operating system specific jar.
+            > Note: If using a jar to run the application, make sure that you are using Java 24.
+          # Use a glob pattern to find and upload all files from the artifacts directory
           files: artifacts/**/*
