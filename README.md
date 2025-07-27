@@ -11,7 +11,7 @@
   <img src="https://img.shields.io/badge/pomodoro-technique-ff4500.svg?style=for-the-badge" alt="Pomodoro badge"/>
 </p>
 
-# Pomolin
+<h1 align="center">Pomolin</h1>
 
 <p align="center">
   <img src="gitAssets/pomolin.avif" alt="Pomolin app icon" width="500"/>
