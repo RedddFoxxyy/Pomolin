@@ -71,13 +71,13 @@ jobs:
         run: chmod +x ./gradlew
 
       # 4. Build the application using Gradle, targeting the specific architecture
-      - name: Build with Gradle
-        run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            ./gradlew.bat ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS -Pcompose.desktop.target.arch=${{ matrix.arch }}
-          else
-            ./gradlew ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS -Pcompose.desktop.target.arch=${{ matrix.arch }}
-          fi
+      - name: Build with Gradle on Windows
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS -Pcompose.desktop.target.arch=${{ matrix.arch }}
+
+      - name: Build with Gradle on Linux/macOS
+        if: runner.os != 'Windows'
+        run: ./gradlew ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS -Pcompose.desktop.target.arch=${{ matrix.arch }}
 
       # 5. Upload the built packages as an artifact for the release job
       - name: Upload Artifacts
