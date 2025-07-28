@@ -14,7 +14,7 @@
 <h1 align="center">Pomolin</h1>
 
 <p align="center">
-  <img src="gitAssets/pomolin.avif" alt="Pomolin app icon" width="500"/>
+  <img src="gitAssets/pomolin.avif" alt="Pomolin app icon" width="450"/>
 </p>
 
 A simple, beautiful, and minimalist Pomodoro timer for your desktop. Designed to help you stay
@@ -48,7 +48,7 @@ You can download the latest version of Pomolin from the *
 1. Download the `.msi` or `.exe` file.
 2. Run the installer and follow the on-screen instructions.
 
-> NOTE: For windows arm64 for jar file use java21! Also on windows you will file the app in C:
+> NOTE: For windows arm64, to run jar file use java21! Also on windows you will file the app in C:
 > \ProgramFiles\Pomolin\
 
 ### macOS
@@ -56,7 +56,7 @@ You can download the latest version of Pomolin from the *
 1. Download the `.dmg` or `.pkg` file.
 2. Open the file and drag the `Pomolin.app` to your `Applications` folder.
 
-> NOTE: The app has not been tested for MacOS yet. You can help me test for MACOS.
+> NOTE: The app has not been tested for MacOS yet. You can help me to test for MACOS.
 
 ### Linux
 
@@ -69,7 +69,7 @@ You can download the latest version of Pomolin from the *
 ### JVM
 
 1. Download the `.jar` file for your OS and CPU.
-2. Run it using JRE21 or JDK21:
+2. Run it using JRE24 or JDK24:
    ```bash
    java -jar pomolin-macos-arm64-1.0.0-release.jar 
    ```
@@ -79,7 +79,7 @@ You can download the latest version of Pomolin from the *
 
 ## Building from Source
 
-To build Pomolin from the source code, you'll need to have **JDK 21** and **Git** installed.
+To build Pomolin from the source code, you'll need to have **JDK** and **Git** installed.
 
 1. **Clone the repository:**
    ```bash
