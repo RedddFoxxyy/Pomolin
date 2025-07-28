@@ -32,7 +32,6 @@ kotlin {
 			implementation("com.googlecode.soundlibs:mp3spi:1.9.5.4")
 			implementation("com.googlecode.soundlibs:basicplayer:3.0.0.0")
 			implementation("ch.qos.logback:logback-classic:1.5.18")
-			implementation("org.slf4j:slf4j-api:2.0.13")
 		}
 	}
 }
@@ -65,22 +64,31 @@ compose.desktop {
 				packageName = "pomolin"
 				bundleID = "com.redddfoxxyy.pomolin"
 				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				dockName = "Pomolin"
 				copyright = "© 2025 RedddFoxxyy. All rights reserved."
 			}
 			windows {
 				packageName = "pomolin"
 				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
 				console = false
+				menu = true
+				shortcut = true
 				copyright = "© 2025 RedddFoxxyy. All rights reserved."
 			}
 		}
 		jvmArgs += listOf(
-//			"-XX:+UseZGC",
-			"-Xms256m",
-			"-Xmx512m",
+			"-Xms64m",
+			"-Xmx128m",
+			"-XX:MinHeapFreeRatio=10",
+			"-XX:MaxHeapFreeRatio=10",
+			"-XX:+UseG1GC",
+			"-XX:MaxGCPauseMillis=100",
+			"-XX:+UseStringDeduplication",
+			"-XX:+PerfDisableSharedMem",
 			"--enable-native-access=ALL-UNNAMED",
-//          "-XX:+AlwaysPreTouch"
+			"--illegal-native-access=deny"
 		)
+
 		buildTypes.release.proguard {
 			configurationFiles.from("proguard-rules.pro")
 		}
