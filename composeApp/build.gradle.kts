@@ -63,13 +63,13 @@ compose.desktop {
 			macOS {
 				packageName = "pomolin"
 				bundleID = "com.redddfoxxyy.pomolin"
-				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.icns"))
 				dockName = "Pomolin"
 				copyright = "© 2025 RedddFoxxyy. All rights reserved."
 			}
 			windows {
 				packageName = "pomolin"
-				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.png"))
+				iconFile.set(project.file("src/desktopMain/composeResources/drawable/Pomolin.ico"))
 				console = false
 				menu = true
 				shortcut = true
