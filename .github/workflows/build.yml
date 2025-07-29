@@ -5,49 +5,39 @@
 name: Build and Release
 
 on:
-  # Triggers the workflow on push events but only for the "release" branch
   push:
     branches: [ "release" ]
 
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 jobs:
   build:
     strategy:
-      # Do not cancel other jobs if one fails
       fail-fast: false
       matrix:
         include:
-          # Linux Builds
           - os: ubuntu-latest
             arch: "x64"
             runner: "ubuntu-latest"
-            # <--- MODIFIED: Added task to create the distributable folder for AppImage
             gradle_task: "packageReleaseDeb createReleaseDistributable"
             os_name: "linux"
           - os: ubuntu-24.04-arm
             arch: "arm64"
             runner: "ubuntu-24.04-arm"
-            # <--- MODIFIED: Added task to create the distributable folder for AppImage
             gradle_task: "packageReleaseDeb createReleaseDistributable"
             os_name: "linux"
 
-          # macOS Builds
           - os: macos-13
             arch: "x64"
-            # Explicitly use an Intel-based runner for the x64 build
             runner: "macos-13"
             gradle_task: "packageReleaseDmg packageReleasePkg"
             os_name: "macos"
           - os: macos-latest
             arch: "arm64"
-            # macos-14 is an Apple Silicon runner, required for native arm64 builds.
             runner: "macos-14"
             gradle_task: "packageReleaseDmg packageReleasePkg"
             os_name: "macos"
 
-          # Windows Builds
           - os: windows-latest
             arch: "x64"
             runner: "windows-latest"
@@ -59,15 +49,18 @@ jobs:
             gradle_task: "packageReleaseMsi packageReleaseExe"
             os_name: "windows"
 
-    # Run on the runner specified in the matrix
     runs-on: ${{ matrix.runner }}
 
     steps:
-      # 1. Check out the repository code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Set up the Java Development Kit (JDK) for the target architecture
+      - name: Install Dependencies for Ubuntu
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2
+
       - name: Set up JDK 21 for Windows ARM
         if: matrix.os == 'windows-11-arm'
         uses: actions/setup-java@v4
@@ -84,12 +77,10 @@ jobs:
           java-version: '24'
           architecture: ${{ matrix.arch }}
 
-      # 3. Grant execute permission to the Gradle wrapper (for macOS and Linux)
       - name: Grant execute permission for gradlew
         if: runner.os != 'Windows'
         run: chmod +x ./gradlew
 
-      # 4. Build the application using Gradle, targeting the specific architecture
       - name: Build with Gradle on Windows
         if: runner.os == 'Windows'
         shell: bash
@@ -99,7 +90,6 @@ jobs:
         if: runner.os != 'Windows'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      # Steps to create the AppImage, will only run on Linux
       - name: Create AppImage (Linux only)
         if: runner.os == 'Linux'
         shell: bash
@@ -165,7 +155,6 @@ jobs:
           mv *.AppImage "$ARTIFACT_DIR/appimage/"
           echo "AppImage created successfully!"
 
-      # 5. Rename the packages to include the architecture, preventing release conflicts
       - name: Rename Packages for Release
         shell: bash
         run: |
@@ -193,7 +182,6 @@ jobs:
           rename_files "$ARTIFACT_DIR/msi" "msi"
           rename_files "$ARTIFACT_DIR/exe" "exe"
 
-      # 6. Upload the built packages as an artifact for the release job
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -210,19 +198,15 @@ jobs:
           retention-days: 1
 
   release:
-    # This job runs only after all jobs in the 'build' matrix have successfully completed.
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      # This permission is required by softprops/action-gh-release to create a release
       contents: write
 
     steps:
-      # 1. Check out the repository code to access the build.gradle.kts file
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Get the project version from the Gradle build file
       - name: Get Project Version
         id: get_version
         run: |
@@ -230,24 +214,17 @@ jobs:
           VERSION=$(grep 'packageVersion = ' composeApp/build.gradle.kts | head -n 1 | sed -e 's/.*packageVersion = "\(.*\)"/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      # 3. Download all artifacts from the completed build jobs
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          # The destination path for all downloaded artifacts.
-          # Each artifact will be in its own directory.
           path: artifacts
 
-      # 4. Create a single Draft Release and upload all packages
       - name: Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
           name: Pomolin v${{ steps.get_version.outputs.version }} Alpha
-          # This creates a draft release, so it's not published automatically.
           draft: true
-          # The tag name is based on the commit hash to ensure it's unique.
           tag_name: v${{ steps.get_version.outputs.version }}
-          # Set the release body content, using the extracted version
           body: |
             ### Description:
 
@@ -259,5 +236,5 @@ jobs:
 
             Download the appropriate package for your operating system and architecture below. All builds are created automatically via GitHub Actions. You can download an operating system specific package or an operating system specific jar.
             > Note: If using a jar to run the application, make sure that you are using Java 24. ( For windows 11 arm use Java21)
-          # Use a glob pattern to find and upload all files from the artifacts directory
+
           files: artifacts/**/*
