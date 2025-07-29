@@ -107,7 +107,7 @@ jobs:
           # 1. Define paths and variables
           ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
           APP_NAME="pomolin"
-          GRADLE_APP_DIR="$ARTIFACT_DIR/$APP_NAME"
+          GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
           APPDIR_NAME="$APP_NAME.AppDir"
 
           # 2. Dynamically select and download the correct appimagetool
