@@ -48,8 +48,7 @@ You can download the latest version of Pomolin from the *
 1. Download the `.msi` or `.exe` file.
 2. Run the installer and follow the on-screen instructions.
 
-> NOTE: For windows arm64, to run jar file use java21! Also on windows you will file the app in C:
-> \ProgramFiles\Pomolin\
+> NOTE: For Windows ARM64, to run the jar file use Java21.
 
 ### macOS
 
@@ -63,7 +62,7 @@ You can download the latest version of Pomolin from the *
 1. Download the `.deb` file.
 2. Install it using your package manager, for example:
    ```bash
-   sudo apt install ./pomolin_1.0.0_amd64.deb
+   sudo apt install ./pomolin_1.0.2_amd64.deb
    ```
 
 ### JVM
@@ -71,9 +70,11 @@ You can download the latest version of Pomolin from the *
 1. Download the `.jar` file for your OS and CPU.
 2. Run it using JRE24 or JDK24:
    ```bash
-   java -jar pomolin-macos-arm64-1.0.0-release.jar 
+   java -jar pomolin-macos-arm64-1.0.2-release.jar 
    ```
-   > NOTE: Make sure you use java24 only to run the jars. ( Java21 on Windows arm)
+   > NOTE: Make sure you use java24 only to run the jars. (Java21 on Windows Arm64).
+   >
+   > Preferably use Temurin or ZULU JRE/JDK.
 
 ***
 

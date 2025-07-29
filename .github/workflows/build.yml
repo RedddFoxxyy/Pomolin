@@ -135,6 +135,9 @@ jobs:
 
           # 5. Copy the icon
           echo "Copying icon..."
+          ICON_STD_PATH="$APPDIR_NAME/usr/share/icons/hicolor/512x512/apps"
+          mkdir -p "$ICON_STD_PATH"
+          cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$ICON_STD_PATH/$APP_NAME.png"
           cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$APPDIR_NAME/$APP_NAME.png"
 
           # 6. Create the AppRun script
@@ -152,7 +155,7 @@ jobs:
           # 8. Move the final AppImage to the artifacts directory for upload
           mkdir -p "$ARTIFACT_DIR/appimage"
           # Use a wildcard to move the generated AppImage regardless of its arch name
-          mv *.AppImage "$ARTIFACT_DIR/appimage/"
+          mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
           echo "AppImage created successfully!"
 
       - name: Rename Packages for Release
@@ -230,7 +233,7 @@ jobs:
 
             Pomolin is a simple, beautiful, and minimalist Pomodoro timer for your desktop. Designed to help you stay focused and productive, it provides an elegant and straightforward way to manage your work and break intervals. With a clean interface and essential features, Pomolin helps you get into a rhythm of focused work sessions followed by refreshing breaks, all from a native desktop application.
 
-            > Note: The app has been tested only for Linux.
+            > Note: AppImages are the preferred way to run the app for linux, if you encounter any issues with AppImage, feel free to report them using github issues.
 
             ### 📦 Assets & Downloads:
 
