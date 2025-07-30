@@ -29,12 +29,12 @@ jobs:
           - os: ubuntu-latest
             arch: "x64"
             runner: "ubuntu-latest"
-            gradle_task: "packageReleaseDeb createReleaseDistributable"
+            gradle_task: "createReleaseDistributable"
             os_name: "linux-18"
           - os: ubuntu-24.04-arm
             arch: "arm64"
             runner: "ubuntu-24.04-arm"
-            gradle_task: "packageReleaseDeb createReleaseDistributable"
+            gradle_task: "createReleaseDistributable"
             os_name: "linux-18"
 
           - os: macos-13
@@ -44,7 +44,7 @@ jobs:
             os_name: "macos"
           - os: macos-latest
             arch: "arm64"
-            runner: "macos-14"
+            runner: "macos-15"
             gradle_task: "packageReleaseDmg packageReleasePkg"
             os_name: "macos"
 
@@ -91,92 +91,95 @@ jobs:
         if: runner.os != 'Windows'
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle on Windows
-        if: runner.os == 'Windows'
+      - name: Build Jar with Gradle on Windows
+        if: matrix.os_name == 'windows'
         shell: bash
         run: ./gradlew.bat -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      - name: Build with Gradle on Linux/macOS
-        if: runner.os != 'Windows'
+      - name: Build Jar with Gradle on macOS
+        if: matrix.os_name == 'macos'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      - name: Create AppImage (Linux only)
+      - name: Build Jar with Gradle on Ubuntu-24
+        if: matrix.os_name == 'linux'
+        run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
+
+      - name: Create AppImage (linux-18 only)
         if: matrix.os_name == 'linux-18'
-        #        if: runner.os == 'Linux'
         shell: bash
         run: |
           docker run --rm \
-          -v ${{ github.workspace }}:${{ github.workspace }} \
-          -w ${{ github.workspace }} \
-          -e ARCH=${{ matrix.arch }} \
-          ubuntu:18.04 /bin/bash -c '
-          # 0. Install dependencies inside the container
-          echo "Updating container and installing dependencies..."
-          apt-get update && apt-get install -y wget ca-certificates libfuse2
+            -v ${{ github.workspace }}:${{ github.workspace }} \
+            -w ${{ github.workspace }} \
+            -e ARCH=${{ matrix.arch }} \
+            ubuntu:18.04 /bin/bash -c '
+              # 0. Install dependencies inside the container
+              echo "Updating container and installing dependencies..."
+              apt-get update && apt-get install -y wget ca-certificates libfuse2
           
-          # 1. Define paths and variables
-          ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
-          APP_NAME="pomolin"
-          GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
-          APPDIR_NAME="$APP_NAME.AppDir"
-
-          # 2. Dynamically select and download the correct appimagetool
-          if [ "${{ matrix.arch }}" = "arm64" ]; then
-            TOOL_ARCH="aarch64"
-          else
-            TOOL_ARCH="x86_64"
-          fi
+              # 1. Define paths and variables
+              ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
+              APP_NAME="pomolin"
+              GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
+              APPDIR_NAME="$APP_NAME.AppDir"
           
-          TOOL_FILENAME="appimagetool-${TOOL_ARCH}.AppImage"
-          TOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/${TOOL_FILENAME}"
-
-          echo "Downloading $TOOL_FILENAME..."
-          wget -q "$TOOL_URL"
-          chmod +x "$TOOL_FILENAME"
-
-          # 3. Create the AppDir structure
-          echo "Creating $APPDIR_NAME..."
-          mkdir -p "$APPDIR_NAME/usr/lib"
-          echo "Moving $GRADLE_APP_DIR to $APPDIR_NAME/usr/lib/"
-          mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/"
-
-          # 4. Create the .desktop file
-          echo "Creating .desktop file..."
-          cat <<EOF > "$APPDIR_NAME/$APP_NAME.desktop"
-          [Desktop Entry]
-          Name=pomolin
-          Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
-          Exec=pomolin
-          Icon=pomolin
-          Terminal=false
-          Type=Application
-          Categories=Utility
-          EOF
-
-          # 5. Copy the icon
-          echo "Copying icon..."
-          ICON_STD_PATH="$APPDIR_NAME/usr/share/icons/hicolor/512x512/apps"
-          mkdir -p "$ICON_STD_PATH"
-          cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$ICON_STD_PATH/$APP_NAME.png"
-          cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$APPDIR_NAME/$APP_NAME.png"
-
-          # 6. Create the AppRun script
-          echo "Creating AppRun script..."
-          cat <<EOF > "$APPDIR_NAME/AppRun"
-          #!/bin/sh
-          exec "\$APPDIR/usr/lib/$APP_NAME/bin/$APP_NAME" "\$@"
-          EOF
-          chmod +x "$APPDIR_NAME/AppRun"
-
-          # 7. Run the correct appimagetool
-          echo "Building AppImage with $TOOL_FILENAME..."
-          ./"$TOOL_FILENAME" "$APPDIR_NAME"
-
-          # 8. Move the final AppImage to the artifacts directory for upload
-          mkdir -p "$ARTIFACT_DIR/appimage"
-          # Use a wildcard to move the generated AppImage regardless of its arch name
-          mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
-          echo "AppImage created successfully!"
+              # 2. Dynamically select and download the correct appimagetool
+              if [ "${{ matrix.arch }}" = "arm64" ]; then
+                TOOL_ARCH="aarch64"
+              else
+                TOOL_ARCH="x86_64"
+              fi
+          
+              TOOL_FILENAME="appimagetool-${TOOL_ARCH}.AppImage"
+              TOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/${TOOL_FILENAME}"
+          
+              echo "Downloading $TOOL_FILENAME..."
+              wget -q "$TOOL_URL"
+              chmod +x "$TOOL_FILENAME"
+          
+              # 3. Create the AppDir structure
+              echo "Creating $APPDIR_NAME..."
+              mkdir -p "$APPDIR_NAME/usr/lib"
+              echo "Moving $GRADLE_APP_DIR to $APPDIR_NAME/usr/lib/"
+              mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/"
+          
+              # 4. Create the .desktop file
+              echo "Creating .desktop file..."
+              cat <<EOF > "$APPDIR_NAME/$APP_NAME.desktop"
+              [Desktop Entry]
+              Name=pomolin
+              Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
+              Exec=pomolin
+              Icon=pomolin
+              Terminal=false
+              Type=Application
+              Categories=Utility
+              EOF
+          
+              # 5. Copy the icon
+              echo "Copying icon..."
+              ICON_STD_PATH="$APPDIR_NAME/usr/share/icons/hicolor/512x512/apps"
+              mkdir -p "$ICON_STD_PATH"
+              cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$ICON_STD_PATH/$APP_NAME.png"
+              cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$APPDIR_NAME/$APP_NAME.png"
+          
+              # 6. Create the AppRun script
+              echo "Creating AppRun script..."
+              cat <<EOF > "$APPDIR_NAME/AppRun"
+              #!/bin/sh
+              exec "\$APPDIR/usr/lib/$APP_NAME/bin/$APP_NAME" "\$@"
+              EOF
+              chmod +x "$APPDIR_NAME/AppRun"
+          
+              # 7. Run the correct appimagetool
+              echo "Building AppImage with $TOOL_FILENAME..."
+              ./"$TOOL_FILENAME" "$APPDIR_NAME"
+          
+              # 8. Move the final AppImage to the artifacts directory for upload
+              mkdir -p "$ARTIFACT_DIR/appimage"
+              # Use a wildcard to move the generated AppImage regardless of its arch name
+              mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
+              echo "AppImage created successfully!"
 
       - name: Rename Packages for Release
         shell: bash
