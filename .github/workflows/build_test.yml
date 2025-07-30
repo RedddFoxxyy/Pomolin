@@ -73,8 +73,7 @@ jobs:
       - name: Install Dependencies for Ubuntu-18
         if: matrix.os_name == 'linux-18'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libfuse2
+          sudo apt-get install -y libfuse2 git
 
       - name: Set up JDK 21 for Windows ARM
         if: matrix.os == 'windows-11-arm'
@@ -120,7 +119,7 @@ jobs:
             ubuntu:18.04 /bin/bash -c '
               # 0. Install dependencies inside the container
               echo "Updating container and installing dependencies..."
-              apt-get update && apt-get install -y wget ca-certificates libfuse2 gnupg curl
+              apt-get update && apt-get install -y wget ca-certificates libfuse2 gnupg curl git
               echo "Adding Azul Zulu repository..."
               curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg
               echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
@@ -129,7 +128,15 @@ jobs:
               echo "Installing Azul Zulu JDK 24..."
               apt-get install -y zulu24-ca-jdk
               echo "Setting JAVA_HOME and PATH..."
-              export JAVA_HOME=/usr/lib/jvm/zulu24-ca-amd64
+              ARCH=$(uname -m)
+              if [[ "$ARCH" == "x86_64" ]]; then
+                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-amd64
+              elif [[ "$ARCH" == "aarch64" ]]; then
+                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-arm64
+              else
+                echo "Unknown architecture: $ARCH"
+                exit 1
+              fi
               export PATH="$JAVA_HOME/bin:$PATH"
               java -version
           
