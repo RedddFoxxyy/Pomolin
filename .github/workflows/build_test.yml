@@ -134,7 +134,7 @@ jobs:
               java -version
           
               echo "Cloning repository..."
-              git clone https://github.com/your-org/your-repo.git repo && cd repo
+              git clone https://github.com/RedddFoxxyy/Pomolin.git repo && cd repo
               echo "Running Gradle createReleaseDistributable..."
               ./gradlew createReleaseDistributable
           
