@@ -19,23 +19,23 @@ jobs:
           - os: ubuntu-latest
             arch: "x64"
             runner: "ubuntu-latest"
-            gradle_task: "packageReleaseDeb createReleaseDistributable"
+            gradle_task: "packageReleaseDeb"
             os_name: "linux"
           - os: ubuntu-24.04-arm
             arch: "arm64"
             runner: "ubuntu-24.04-arm"
-            gradle_task: "packageReleaseDeb createReleaseDistributable"
+            gradle_task: "packageReleaseDeb"
             os_name: "linux"
           - os: ubuntu-22.04
             arch: "x64"
             runner: "ubuntu-22.04"
             gradle_task: "createReleaseDistributable"
-            os_name: "linux-18"
+            os_name: "linux-22"
           - os: ubuntu-22.04-arm
             arch: "arm64"
             runner: "ubuntu-22.04-arm"
             gradle_task: "createReleaseDistributable"
-            os_name: "linux-18"
+            os_name: "linux-22"
 
           - os: macos-13
             arch: "x64"
@@ -70,8 +70,8 @@ jobs:
         run: |
           sudo apt-get update
 
-      - name: Install Dependencies for Ubuntu-18
-        if: matrix.os_name == 'linux-18'
+      - name: Install Dependencies for Ubuntu-22
+        if: matrix.os_name == 'linux-22'
         run: |
           sudo apt-get install -y libfuse2
 
@@ -84,7 +84,7 @@ jobs:
           architecture: ${{ matrix.arch }}
 
       - name: Set up JDK 24 for other architectures
-        if: ${{ matrix.os != 'windows-11-arm' && matrix.os_name != 'linux-18' }}
+        if: matrix.os != 'windows-11-arm'
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
@@ -108,12 +108,12 @@ jobs:
         if: matrix.os_name == 'linux'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      - name: Build Jar with Gradle on Ubuntu-24
-        if: matrix.os_name == 'linux-18'
+      - name: Build Jar with Gradle on Ubuntu-22
+        if: matrix.os_name == 'linux-22'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }}
 
       - name: Build AppImage on Ubuntu-18
-        if: matrix.os_name == 'linux-18'
+        if: matrix.os_name == 'linux-22'
         shell: bash
         run: |
           # 1. Define paths and variables
