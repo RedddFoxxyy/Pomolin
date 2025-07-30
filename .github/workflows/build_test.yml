@@ -101,7 +101,7 @@ jobs:
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
       - name: Create AppImage (Linux only)
-        if: os_name == 'linux-18'
+        if: matrix.os_name == 'linux-18'
         #        if: runner.os == 'Linux'
         shell: bash
         run: |
