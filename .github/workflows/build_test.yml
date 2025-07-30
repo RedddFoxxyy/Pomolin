@@ -116,7 +116,7 @@ jobs:
             -v ${{ github.workspace }}:${{ github.workspace }} \
             -w ${{ github.workspace }} \
             -e ARCH=${{ matrix.arch }} \
-            ubuntu:18.04 /bin/bash -c '
+            ubuntu:20.04 /bin/bash -c '
               # 0. Install dependencies inside the container
               echo "Updating container and installing dependencies..."
               apt-get update && apt-get install -y wget ca-certificates libfuse2 gnupg curl git
@@ -125,14 +125,14 @@ jobs:
               echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
               > /etc/apt/sources.list.d/zulu.list
               apt-get update
-              echo "Installing Azul Zulu JDK 17..."
-              apt-get install -y zulu17-ca-jdk
+              echo "Installing Azul Zulu JDK 21..."
+              apt-get install -y zulu21-ca-jdk
               echo "Setting JAVA_HOME and PATH..."
               ARCH=$(uname -m)
               if [[ "$ARCH" == "x86_64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu17-ca-amd64
+                export JAVA_HOME=/usr/lib/jvm/zulu21-ca-amd64
               elif [[ "$ARCH" == "aarch64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu17-ca-arm64
+                export JAVA_HOME=/usr/lib/jvm/zulu21-ca-arm64
               else
                 echo "Unknown architecture: $ARCH"
                 exit 1
