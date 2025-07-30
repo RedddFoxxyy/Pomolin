@@ -133,6 +133,11 @@ jobs:
               export PATH="$JAVA_HOME/bin:$PATH"
               java -version
           
+              echo "Cloning repository..."
+              git clone https://github.com/your-org/your-repo.git repo && cd repo
+              echo "Running Gradle createReleaseDistributable..."
+              ./gradlew createReleaseDistributable
+          
               # 1. Define paths and variables
               ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
               APP_NAME="pomolin"
