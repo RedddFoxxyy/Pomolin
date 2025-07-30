@@ -16,26 +16,26 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             arch: "x64"
-            runner: "ubuntu-latest"
+            runner: "ubuntu-22.04"
             gradle_task: "packageReleaseDeb"
             os_name: "linux"
-          - os: ubuntu-24.04-arm
+          - os: ubuntu-22.04-arm
             arch: "arm64"
-            runner: "ubuntu-24.04-arm"
+            runner: "ubuntu-22.04-arm"
             gradle_task: "packageReleaseDeb"
             os_name: "linux"
           - os: ubuntu-22.04
             arch: "x64"
             runner: "ubuntu-22.04"
             gradle_task: "createReleaseDistributable"
-            os_name: "linux-22"
+            os_name: "linux-AppImage"
           - os: ubuntu-22.04-arm
             arch: "arm64"
             runner: "ubuntu-22.04-arm"
             gradle_task: "createReleaseDistributable"
-            os_name: "linux-22"
+            os_name: "linux-AppImage"
 
           - os: macos-13
             arch: "x64"
@@ -70,8 +70,8 @@ jobs:
         run: |
           sudo apt-get update
 
-      - name: Install Dependencies for Ubuntu-22
-        if: matrix.os_name == 'linux-22'
+      - name: Install Dependencies for linux-AppImage
+        if: matrix.os_name == 'linux-AppImage'
         run: |
           sudo apt-get install -y libfuse2
 
@@ -108,12 +108,12 @@ jobs:
         if: matrix.os_name == 'linux'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }} packageReleaseUberJarForCurrentOS
 
-      - name: Build Jar with Gradle on Ubuntu-22
-        if: matrix.os_name == 'linux-22'
+      - name: Build DistributablePackage with Gradle on Ubuntu-22
+        if: matrix.os_name == 'linux-AppImage'
         run: ./gradlew -PosArch=${{ matrix.arch }} ${{ matrix.gradle_task }}
 
-      - name: Build AppImage on Ubuntu-18
-        if: matrix.os_name == 'linux-22'
+      - name: Build AppImage on Ubuntu-22
+        if: matrix.os_name == 'linux-AppImage'
         shell: bash
         run: |
           # 1. Define paths and variables
@@ -210,7 +210,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: package-${{ runner.os }}-${{ matrix.arch }}
+          name: package-${{ matrix.os_name }}-${{ matrix.arch }}
           path: |
             composeApp/build/compose/binaries/main-release/deb/*.deb
             # <--- ADDED: Include the AppImage in the upload
