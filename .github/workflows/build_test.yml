@@ -125,14 +125,14 @@ jobs:
               echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
               > /etc/apt/sources.list.d/zulu.list
               apt-get update
-              echo "Installing Azul Zulu JDK 21..."
-              apt-get install -y zulu21-ca-jdk
+              echo "Installing Azul Zulu JDK 24..."
+              apt-get install -y zulu24-ca-jdk
               echo "Setting JAVA_HOME and PATH..."
               ARCH=$(uname -m)
               if [[ "$ARCH" == "x86_64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu21-ca-amd64
+                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-amd64
               elif [[ "$ARCH" == "aarch64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu21-ca-arm64
+                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-arm64
               else
                 echo "Unknown architecture: $ARCH"
                 exit 1
