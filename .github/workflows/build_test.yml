@@ -173,16 +173,14 @@ jobs:
           
               # 4. Create the .desktop file
               echo "Creating .desktop file..."
-              cat <<EOF > "$APPDIR_NAME/$APP_NAME.desktop"
-              [Desktop Entry]
+              echo "[Desktop Entry]
               Name=pomolin
               Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
               Exec=pomolin
               Icon=pomolin
               Terminal=false
               Type=Application
-              Categories=Utility
-              EOF
+              Categories=Utility" > "$APPDIR_NAME/$APP_NAME.desktop"
           
               # 5. Copy the icon
               echo "Copying icon..."
