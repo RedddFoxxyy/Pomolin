@@ -87,14 +87,13 @@ compose.desktop {
 			}
 		}
 		jvmArgs += listOf(
-			"-Xms64m",
-			"-Xmx128m",
+			"-Xms8m",
+			"-Xmx64m",
 			"-XX:MinHeapFreeRatio=10",
 			"-XX:MaxHeapFreeRatio=10",
 			"-XX:+UseG1GC",
 			"-XX:MaxGCPauseMillis=100",
 			"-XX:+UseStringDeduplication",
-			"-XX:+PerfDisableSharedMem",
 			"--enable-native-access=ALL-UNNAMED",
 			"--illegal-native-access=deny"
 		)
