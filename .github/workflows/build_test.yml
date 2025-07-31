@@ -191,10 +191,8 @@ jobs:
           
               # 6. Create the AppRun script
               echo "Creating AppRun script..."
-              cat <<EOF > "$APPDIR_NAME/AppRun"
-              #!/bin/sh
-              exec "\$APPDIR/usr/lib/$APP_NAME/bin/$APP_NAME" "\$@"
-              EOF
+              echo '#!/bin/sh
+              exec "$APPDIR/usr/lib/'"$APP_NAME"'/bin/'"$APP_NAME"'" "$@"' > "$APPDIR_NAME/AppRun"
               chmod +x "$APPDIR_NAME/AppRun"
           
               # 7. Run the correct appimagetool
