@@ -146,7 +146,7 @@ jobs:
               # 1. Define paths and variables
               ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
               APP_NAME="pomolin"
-              GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
+              GRADLE_APP_DIR="$ARTIFACT_DIR/app"
               APPDIR_NAME="$APP_NAME.AppDir"
           
               # 2. Dynamically select and download the correct appimagetool
@@ -169,7 +169,7 @@ jobs:
               echo "Creating $APPDIR_NAME..."
               mkdir -p "$APPDIR_NAME/usr/lib"
               echo "Moving $GRADLE_APP_DIR to $APPDIR_NAME/usr/lib/"
-              mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/"
+              mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/$APP_NAME"
           
               # 4. Create the .desktop file
               echo "Creating .desktop file..."
