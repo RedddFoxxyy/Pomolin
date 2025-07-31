@@ -122,8 +122,7 @@ jobs:
               apt-get update && apt-get install -y curl wget git gnupg ca-certificates libfuse2 curl unzip binutils file
               echo "Adding Azul Zulu repository..."
               curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg
-              echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
-              > /etc/apt/sources.list.d/zulu.list
+              echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" > /etc/apt/sources.list.d/zulu.list
               apt-get update
               echo "Installing Azul Zulu JDK 24..."
               apt-get install -y zulu24-ca-jdk
@@ -146,7 +145,6 @@ jobs:
               # 1. Define paths and variables
               ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
               APP_NAME="pomolin"
-              GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
               APPDIR_NAME="$APP_NAME.AppDir"
           
               # 2. Dynamically select and download the correct appimagetool
@@ -162,8 +160,7 @@ jobs:
               echo "Downloading $TOOL_FILENAME..."
               wget -q "$TOOL_URL"
               chmod +x "$TOOL_FILENAME"
-              ./"$TOOL_FILENAME" --appimage-extract && \
-              mv squashfs-root /usr/local/bin/appimagetool
+              ./"$TOOL_FILENAME" --appimage-extract && mv squashfs-root /usr/local/bin/appimagetool
           
               # 3. Create the AppDir structure
               echo "Creating $APPDIR_NAME..."
@@ -173,14 +170,16 @@ jobs:
           
               # 4. Create the .desktop file
               echo "Creating .desktop file..."
-              echo "[Desktop Entry]
+              cat > "$APPDIR_NAME/$APP_NAME.desktop" <<EOL
+              [Desktop Entry]
               Name=pomolin
               Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
               Exec=pomolin
               Icon=pomolin
               Terminal=false
               Type=Application
-              Categories=Utility" > "$APPDIR_NAME/$APP_NAME.desktop"
+              Categories=Utility
+              EOL
           
               # 5. Copy the icon
               echo "Copying icon..."
@@ -191,10 +190,12 @@ jobs:
           
               # 6. Create the AppRun script
               echo "Creating AppRun script..."
-              echo '#!/bin/sh
-              exec "$APPDIR/usr/lib/'"$APP_NAME"'/bin/'"$APP_NAME"'" "$@"' > "$APPDIR_NAME/AppRun"
+              cat > "$APPDIR_NAME/AppRun" <<EOL
+              #!/bin/sh
+              exec "\$APPDIR/usr/lib/${APP_NAME}/bin/${APP_NAME}" "\$@"
+              EOL
               chmod +x "$APPDIR_NAME/AppRun"
-          
+                        
               # 7. Run the correct appimagetool
               echo "Building AppImage with $TOOL_FILENAME..."
               ./usr/local/bin/appimagetool/AppRun "$APPDIR_NAME"
@@ -203,7 +204,7 @@ jobs:
               mkdir -p "$ARTIFACT_DIR/appimage"
               mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
               echo "AppImage created successfully!"
-            '
+              '
 
       - name: Rename Packages for Release
         shell: bash
