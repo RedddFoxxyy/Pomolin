@@ -112,104 +112,104 @@ jobs:
         if: matrix.os_name == 'linux-18'
         shell: bash
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}:${{ github.workspace }} \
-            -w ${{ github.workspace }} \
-            -e ARCH=${{ matrix.arch }} \
-            ubuntu:18.04 /bin/bash -c '
-              # 0. Install dependencies inside the container
-              echo "Updating container and installing dependencies..."
-              apt-get update && apt-get install -y curl wget git gnupg ca-certificates libfuse2 curl unzip binutils file
-              echo "Adding Azul Zulu repository..."
-              curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg
-              echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
-              > /etc/apt/sources.list.d/zulu.list
-              apt-get update
-              echo "Installing Azul Zulu JDK 24..."
-              apt-get install -y zulu24-ca-jdk
-              echo "Setting JAVA_HOME and PATH..."
-              ARCH=$(uname -m)
-              if [[ "$ARCH" == "x86_64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-amd64
-              elif [[ "$ARCH" == "aarch64" ]]; then
-                export JAVA_HOME=/usr/lib/jvm/zulu24-ca-arm64
-              else
-                echo "Unknown architecture: $ARCH"
-                exit 1
-              fi
-              export PATH="$JAVA_HOME/bin:$PATH"
-              java -version
+               docker run --rm \
+               -v ${{ github.workspace }}:${{ github.workspace }} \
+               -w ${{ github.workspace }} \
+               -e ARCH=${{ matrix.arch }} \
+               ubuntu:18.04 /bin/bash -c '
+                # 0. Install dependencies inside the container
+                echo "Updating container and installing dependencies..."
+                apt-get update && apt-get install -y curl wget git gnupg ca-certificates libfuse2 curl unzip binutils file
+                echo "Adding Azul Zulu repository..."
+                curl -s https://repos.azul.com/azul-repo.key | gpg --dearmor -o /usr/share/keyrings/azul.gpg
+                echo "deb [signed-by=/usr/share/keyrings/azul.gpg] https://repos.azul.com/zulu/deb stable main" \
+                > /etc/apt/sources.list.d/zulu.list
+                apt-get update
+                echo "Installing Azul Zulu JDK 24..."
+                apt-get install -y zulu24-ca-jdk
+                echo "Setting JAVA_HOME and PATH..."
+                ARCH=$(uname -m)
+                if [[ "$ARCH" == "x86_64" ]]; then
+                  export JAVA_HOME=/usr/lib/jvm/zulu24-ca-amd64
+                elif [[ "$ARCH" == "aarch64" ]]; then
+                  export JAVA_HOME=/usr/lib/jvm/zulu24-ca-arm64
+                else
+                  echo "Unknown architecture: $ARCH"
+                  exit 1
+                fi
+                export PATH="$JAVA_HOME/bin:$PATH"
+                java -version
           
-              echo "Cloning repository..."
-              git clone https://github.com/RedddFoxxyy/Pomolin.git repo && cd repo
-              echo "Running Gradle createReleaseDistributable..."
-              ./gradlew createReleaseDistributable
+          #              echo "Cloning repository..."
+          #              git clone https://github.com/RedddFoxxyy/Pomolin.git repo && cd repo
+               echo "Running Gradle createReleaseDistributable..."
+               ./gradlew createReleaseDistributable
           
-              # 1. Define paths and variables
-              ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
-              APP_NAME="pomolin"
-              GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
-              APPDIR_NAME="$APP_NAME.AppDir"
+          # 1. Define paths and variables
+               ARTIFACT_DIR="composeApp/build/compose/binaries/main-release"
+               APP_NAME="pomolin"
+               GRADLE_APP_DIR="$ARTIFACT_DIR/app/$APP_NAME"
+               APPDIR_NAME="$APP_NAME.AppDir"
           
-              # 2. Dynamically select and download the correct appimagetool
-              if [ "${{ matrix.arch }}" = "arm64" ]; then
-                TOOL_ARCH="aarch64"
-              else
-                TOOL_ARCH="x86_64"
-              fi
+          # 2. Dynamically select and download the correct appimagetool
+               if [ "${{ matrix.arch }}" = "arm64" ]; then
+               TOOL_ARCH="aarch64"
+               else
+               TOOL_ARCH="x86_64"
+               fi
+               
+               TOOL_FILENAME="appimagetool-${TOOL_ARCH}.AppImage"
+               TOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/${TOOL_FILENAME}"
+               
+               echo "Downloading $TOOL_FILENAME..."
+               wget -q "$TOOL_URL"
+               chmod +x "$TOOL_FILENAME"
+               ./"$TOOL_FILENAME" --appimage-extract && \
+               mv squashfs-root /usr/local/bin/appimagetool
           
-              TOOL_FILENAME="appimagetool-${TOOL_ARCH}.AppImage"
-              TOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/${TOOL_FILENAME}"
+          # 3. Create the AppDir structure
+               echo "Creating $APPDIR_NAME..."
+               mkdir -p "$APPDIR_NAME/usr/lib"
+               echo "Moving $GRADLE_APP_DIR to $APPDIR_NAME/usr/lib/"
+               mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/"
           
-              echo "Downloading $TOOL_FILENAME..."
-              wget -q "$TOOL_URL"
-              chmod +x "$TOOL_FILENAME"
-              ./"$TOOL_FILENAME" --appimage-extract && \
-              mv squashfs-root /usr/local/bin/appimagetool
+          # 4. Create the .desktop file
+               echo "Creating .desktop file..."
+               cat <<EOF > "$APPDIR_NAME/$APP_NAME.desktop"
+               [Desktop Entry]
+               Name=pomolin
+               Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
+               Exec=pomolin
+               Icon=pomolin
+               Terminal=false
+               Type=Application
+               Categories=Utility
+               EOF
           
-              # 3. Create the AppDir structure
-              echo "Creating $APPDIR_NAME..."
-              mkdir -p "$APPDIR_NAME/usr/lib"
-              echo "Moving $GRADLE_APP_DIR to $APPDIR_NAME/usr/lib/"
-              mv "$GRADLE_APP_DIR" "$APPDIR_NAME/usr/lib/"
+          # 5. Copy the icon
+               echo "Copying icon..."
+               ICON_STD_PATH="$APPDIR_NAME/usr/share/icons/hicolor/512x512/apps"
+               mkdir -p "$ICON_STD_PATH"
+               cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$ICON_STD_PATH/$APP_NAME.png"
+               cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$APPDIR_NAME/$APP_NAME.png"
           
-              # 4. Create the .desktop file
-              echo "Creating .desktop file..."
-              cat <<EOF > "$APPDIR_NAME/$APP_NAME.desktop"
-              [Desktop Entry]
-              Name=pomolin
-              Comment=A simple Pomodoro App written in Kotlin. Focus on what matters!
-              Exec=pomolin
-              Icon=pomolin
-              Terminal=false
-              Type=Application
-              Categories=Utility
-              EOF
+          # 6. Create the AppRun script
+               echo "Creating AppRun script..."
+               cat <<EOF > "$APPDIR_NAME/AppRun"
+          #!/bin/sh
+               exec "\$APPDIR/usr/lib/$APP_NAME/bin/$APP_NAME" "\$@"
+               EOF
+               chmod +x "$APPDIR_NAME/AppRun"
           
-              # 5. Copy the icon
-              echo "Copying icon..."
-              ICON_STD_PATH="$APPDIR_NAME/usr/share/icons/hicolor/512x512/apps"
-              mkdir -p "$ICON_STD_PATH"
-              cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$ICON_STD_PATH/$APP_NAME.png"
-              cp "$APPDIR_NAME/usr/lib/$APP_NAME/lib/$APP_NAME.png" "$APPDIR_NAME/$APP_NAME.png"
+          # 7. Run the correct appimagetool
+               echo "Building AppImage with $TOOL_FILENAME..."
+               ./usr/local/bin/appimagetool/AppRun "$APPDIR_NAME"
           
-              # 6. Create the AppRun script
-              echo "Creating AppRun script..."
-              cat <<EOF > "$APPDIR_NAME/AppRun"
-              #!/bin/sh
-              exec "\$APPDIR/usr/lib/$APP_NAME/bin/$APP_NAME" "\$@"
-              EOF
-              chmod +x "$APPDIR_NAME/AppRun"
-          
-              # 7. Run the correct appimagetool
-              echo "Building AppImage with $TOOL_FILENAME..."
-              ./usr/local/bin/appimagetool/AppRun "$APPDIR_NAME"
-          
-              # 8. Move the final AppImage to the artifacts directory for upload
-              mkdir -p "$ARTIFACT_DIR/appimage"
-              mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
-              echo "AppImage created successfully!"
-            '
+          # 8. Move the final AppImage to the artifacts directory for upload
+               mkdir -p "$ARTIFACT_DIR/appimage"
+               mv pomolin-*.AppImage "$ARTIFACT_DIR/appimage/"
+               echo "AppImage created successfully!"
+               '
 
       - name: Rename Packages for Release
         shell: bash
