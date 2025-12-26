@@ -2,8 +2,6 @@
 
 **Pomolin** has moved!
 
-We have migrated our source code and development to Codeberg.
-
-## 👉 [Click here to visit the new repository](https://codeberg.org/lockedmutex/pomolin)
+## 👉 [Click here to visit the new repository](https://github.com/lockedmutex/Pomolin)
 
 *Please update your bookmarks and remotes.*
